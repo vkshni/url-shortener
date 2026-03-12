@@ -30,3 +30,27 @@ class URLService:
         
         raise ValueError(f"Failed to generate a unique code after {MAX_COLLISION_RETRIES} attempts")
 
+    def resolve(self, short_code: str) -> str:
+
+        url = self.db.find_by_code(short_code)
+
+        if not url:
+            raise ValueError(f"Short code '{short_code}' not found")
+        
+        url.visit_count += 1
+        self.db.update(url)
+        return url.long_url
+    
+    def list_all(self) -> list[URL]:
+
+        return self.db.list_all()
+    
+    def get_stats(self, short_code):
+
+        url = self.db.find_by_code(short_code)
+        if not url:
+            raise ValueError(f"Short code '{short_code}' not found")
+
+        return url.to_dict()
+        
+
