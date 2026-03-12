@@ -25,6 +25,8 @@ class URL:
 
         self.visit_count = visit_count if visit_count else 0
 
+        self.validate()
+
     def to_dict(self):
 
         return {
@@ -49,4 +51,15 @@ class URL:
         )
 
     def validate(self):
-        raise NotImplementedError
+        
+        if not self.long_url:
+            raise ValueError("URL cannot be empty")
+        
+        if not (1 <= len(self.long_url) <= 2000) :
+            raise ValueError(f"URL too long (max 2000 characters)")
+        
+        if  not (self.long_url.startswith("http://") or self.long_url.startswith("https://")):
+            raise ValueError(f"URL must start with 'http://' or 'https://'")
+        
+        if "." not in self.long_url:
+            raise ValueError(f"Invalid URL format - missing domain")
