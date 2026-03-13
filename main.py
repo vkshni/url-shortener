@@ -16,6 +16,12 @@ def cmd_shorten(args):
         short_code = service.shorten(args.long_url)
         print(f"✓ Created: short.ly/{short_code}")
 
+def cmd_resolve(args):
+
+    long_url = service.resolve(args.short_code)
+    print(f"✓ URL resolved: {long_url}")
+
+
 def main():
 
     parser = argparse.ArgumentParser(
@@ -31,6 +37,11 @@ def main():
     p_shorten = sub.add_parser("shorten", help="Shorten a long url", description="Create a short code for a long URL")
     p_shorten.add_argument("long_url", help="URL to shorten (must start with http:// or https://)")
     p_shorten.set_defaults(func=cmd_shorten)
+
+    #resolve
+    p_resolve = sub.add_parser("resolve", help="Resolve a short code", description="Resolve a long URL for a short code")
+    p_resolve.add_argument("short_code", help="Code to resolve (6 characters with base 62 (a-z,A-Z,0-9))")
+    p_resolve.set_defaults(func=cmd_resolve)
 
     args = parser.parse_args()
 
