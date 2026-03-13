@@ -1,4 +1,4 @@
-from short_code_gen import generate
+from short_code_gen import generate, is_valid_code
 from storage import URLDB
 from url_entity import URL
 
@@ -31,6 +31,9 @@ class URLService:
         raise ValueError(f"Failed to generate a unique code after {MAX_COLLISION_RETRIES} attempts")
 
     def resolve(self, short_code: str) -> str:
+
+        if not is_valid_code(short_code):
+            raise ValueError(f"Short code should be exactly 6 alhpanumeric characters")
 
         url = self.db.find_by_code(short_code)
 
