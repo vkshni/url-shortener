@@ -40,23 +40,26 @@ class URLDB:
 
     def __init__(self, url_file="urls.json"):
         self.json_handler = JSONFile(url_file)
+        self._cache = None  # In-memory cache
+        self._load_cache()  # Load once in memory
+
+    def _load_cache(self):
+        if self._cache is None:
+            self._cache = self.json_handler.read_all()
+
+    def _save_cache(self):
+        self.json_handler.write_all(self._cache)
 
     def add(self, url: URL):
 
-        data = self.json_handler.read_all()
-
         url_dict = url.to_dict()
-
-        data.append(url_dict)
-
-        self.json_handler.write_all(data)
+        self._cache.append(url_dict)
+        self._save_cache()
 
     def find_by_url(self, long_url):
 
-        data = self.json_handler.read_all()
-
         url_obj = None
-        for url_dict in data:
+        for url_dict in self._cache:
             if url_dict["long_url"] == long_url:
                 url_obj = URL.from_dict(url_dict)
                 break
@@ -65,10 +68,8 @@ class URLDB:
 
     def find_by_code(self, short_code):
 
-        data = self.json_handler.read_all()
-
         url_obj = None
-        for url_dict in data:
+        for url_dict in self._cache:
             if url_dict["short_code"] == short_code:
                 url_obj = URL.from_dict(url_dict)
                 break
@@ -77,36 +78,21 @@ class URLDB:
 
     def list_all(self) -> list[URL]:
 
-        data = self.json_handler.read_all()
-
-        for i, url_dict in enumerate(data):
-            data[i] = URL.from_dict(url_dict)
+        data = [URL.from_dict(url_dict) for url_dict in self._cache]
 
         return data
 
     def update(self, url: URL) -> bool:
 
-        data = self.json_handler.read_all()
-
         updated = False
-        for i, url_dict in enumerate(data):
+        for i, url_dict in enumerate(self._cache):
             if url_dict["url_id"] == url.url_id:
-                data[i] = url.to_dict()
+                self._cache[i] = url.to_dict()
                 updated = True
                 break
 
-        self.json_handler.write_all(data)
+        if updated:
+            self._save_cache()
 
         return updated
 
-    def delete(self, url: URL) -> bool:
-
-        data = self.json_handler.read_all()
-
-        filtered = [url_dict for url_dict in data if url_dict["url_id"] != url.url_id]
-
-        if len(data) == len(filtered):
-            return False
-
-        self.json_handler.write_all(filtered)
-        return True
