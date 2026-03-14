@@ -33,7 +33,7 @@ class URLService:
     def resolve(self, short_code: str) -> str:
 
         if not is_valid_code(short_code):
-            raise ValueError(f"Short code should be exactly 6 alhpanumeric characters")
+            raise ValueError(f"Short code should be exactly 6 alphanumeric characters")
 
         url = self.db.find_by_code(short_code)
 
