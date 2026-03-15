@@ -1,12 +1,23 @@
+"""
+URL Entity Model
+
+Defines the data structure for URL records with serialization support.
+"""
+
 from uuid import uuid4
 from datetime import datetime
 
+# Date format for consistent timestamp serialization
 DATE_FORMAT = "%d-%m-%YT%H:%M:%S"
-
-# URL Entity
 
 
 class URL:
+    """
+    URL Entity
+    
+    Represents a shortened URL with metadata including visit tracking,
+    timestamps, and unique identification.
+    """
 
     def __init__(
         self,
@@ -16,19 +27,37 @@ class URL:
         visit_count: int = None,
         url_id: str = None,
     ):
+        """
+        Initialize URL entity.
+        
+        Args:
+            long_url: Original long URL
+            short_code: Generated 6-character short code
+            created_at: Creation timestamp string (auto-generated if None)
+            visit_count: Number of times resolved (defaults to 0)
+            url_id: Unique identifier (auto-generated UUID if None)
+        """
+        # Generate or use provided UUID
         self.url_id = str(url_id) if url_id else str(uuid4())
+        
         self.long_url = long_url
         self.short_code = short_code
+        
+        # Parse timestamp or use current time
         self.created_at = (
             datetime.strptime(created_at, DATE_FORMAT) if created_at else datetime.now()
         )
-
+        
+        # Initialize visit counter
         self.visit_count = visit_count if visit_count else 0
 
-        self.validate()
-
-    def to_dict(self):
-
+    def to_dict(self) -> dict:
+        """
+        Convert URL entity to dictionary for JSON serialization.
+        
+        Returns:
+            dict: URL data with all fields as serializable types
+        """
         return {
             "url_id": self.url_id,
             "long_url": self.long_url,
@@ -40,8 +69,16 @@ class URL:
         }
 
     @classmethod
-    def from_dict(cls, url_dict):
-
+    def from_dict(cls, url_dict: dict) -> 'URL':
+        """
+        Create URL entity from dictionary (deserialization).
+        
+        Args:
+            url_dict: Dictionary containing URL data
+            
+        Returns:
+            URL: New URL entity instance
+        """
         return cls(
             long_url=url_dict["long_url"],
             short_code=url_dict["short_code"],
@@ -49,17 +86,3 @@ class URL:
             visit_count=url_dict["visit_count"],
             url_id=url_dict["url_id"],
         )
-
-    def validate(self):
-        
-        if not self.long_url:
-            raise ValueError("URL cannot be empty")
-        
-        if not (1 <= len(self.long_url) <= 2000) :
-            raise ValueError(f"URL too long (max 2000 characters)")
-        
-        if  not (self.long_url.startswith("http://") or self.long_url.startswith("https://")):
-            raise ValueError(f"URL must start with 'http://' or 'https://'")
-        
-        if "." not in self.long_url:
-            raise ValueError(f"Invalid URL format - missing domain")
