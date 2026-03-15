@@ -14,7 +14,7 @@ DB_FILE = os.environ.get('URL_DB_FILE', 'urls.json')
 service = URLService(URLDB(DB_FILE))
 
 
-
+# Shorten command
 def cmd_shorten(args):
     """Handle shorten command"""
     existing = service.db.find_by_url(args.long_url)
@@ -24,13 +24,13 @@ def cmd_shorten(args):
         short_code = service.shorten(args.long_url)
         print(f"✓ Created: short.ly/{short_code}")
 
-
+# Resolve command
 def cmd_resolve(args):
     """Handle resolve command"""
     long_url = service.resolve(args.short_code)
     print(f"→ {long_url}")
 
-
+# List command
 def cmd_list(args):
     """Handle list command"""
     urls = service.list_all()
@@ -49,8 +49,9 @@ def cmd_list(args):
     print()
 
 
+# Main parser
 def main():
-    # Main parser
+    
     parser = argparse.ArgumentParser(
         prog="main.py",
         description="URL Shortener CLI - Shorten and manage URLs",
